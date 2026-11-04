@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#2E231B">
+<title>合成塔防</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Noto+Serif+SC:wght@500;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+<div id="stage">
+  <canvas id="map"></canvas>
+
+  <div id="hud-left" class="hud">
+    <div class="chip diff" id="diff"></div>
+    <div class="chip" title="金币：每波结束时按 10% 给利息，最多 30"><span class="ico coin"></span><b id="gold">0</b><small id="interest" class="interest"></small></div>
+    <div class="chip" title="城门生命"><span class="ico heart"></span><b id="lives">0</b></div>
+    <div class="chip"><span class="lbl">波次</span><b id="wave">0 / 15</b></div>
+  </div>
+  <div id="perks" class="hud"></div>
+  <div id="hud-right" class="hud">
+    <span id="preview" class="note"></span>
+    <button id="btn-music" class="round" aria-label="背景音乐"></button>
+    <button id="btn-mute" class="round" aria-label="静音"></button>
+    <button id="btn-pause" class="round" aria-label="暂停"></button>
+  </div>
+  <div id="tip" class="hidden"></div>
+  <div id="popover" class="hidden"></div>
+
+  <div id="bar">
+    <div id="shop-area">
+      <div id="shop"></div>
+      <div id="inv"></div>
+    </div>
+    <div id="draft" class="hidden">
+      <div class="draft-label"><span>第 <b id="draft-wave">1</b> 波结束</span><strong>选 1 张</strong></div>
+      <div id="cards"></div>
+      <button id="btn-reroll" class="ghost">刷新 · 20 金</button>
+    </div>
+    <div class="spacer"></div>
+    <button id="btn-skill" class="skill" aria-label="火雨（快捷键 Q）"><span class="skill-ico"></span><span class="skill-name">火雨</span><span id="skill-cd" class="skill-cd"></span><span class="key">Q</span></button>
+    <div id="speed" class="seg">
+      <button data-speed="1">1×</button>
+      <button data-speed="2">2×</button>
+    </div>
+    <button id="btn-start" class="primary">开始第 1 波</button>
+  </div>
+
+  <div id="overlay"></div>
+  <div id="rotate">请把手机横过来玩</div>
+</div>
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>
