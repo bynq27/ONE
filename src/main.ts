@@ -190,6 +190,8 @@ function judge(d: DragState) {
 
 function onDown(ev: PointerEvent) {
   audio.unlock();
+  // 只有左键（和触屏/笔）能放塔、施法；右键/中键一律当「取消」，防止误触浪费火雨或金币
+  if (ev.button !== 0) { cancelByRightClick(); return; }
   if (!game.canBuild) return;
   const target = ev.target as HTMLElement;
   const p = toLogical(ev);
@@ -275,7 +277,7 @@ function onUp() {
   if (pd.source === 'shop') {
     audio.play('click');
     view.armed = view.armed?.type === pd.type ? null : { type: pd.type };
-    if (view.armed) tipOnce('armed', '点击草地放置；也可以直接把商店里的塔拖出去', 3500);
+    if (view.armed) tipOnce('armed', '左键点击草地放置，右键取消；也可以直接把商店里的塔拖出去', 3500);
   } else if (pd.source === 'tower') {
     view.selectedEnemy = null;
     view.selectedTower = view.selectedTower === pd.id ? null : pd.id!;
@@ -290,7 +292,14 @@ window.addEventListener('pointermove', onMove);
 window.addEventListener('pointerup', onUp);
 window.addEventListener('pointercancel', () => { pending = null; view.drag = null; });
 canvas.addEventListener('pointerleave', () => { view.hover = null; });
-stage.addEventListener('contextmenu', (e) => e.preventDefault());
+// 左键拖塔时再按右键不会触发 pointerdown，靠 contextmenu 取消拖动
+stage.addEventListener('contextmenu', (e) => { e.preventDefault(); cancelByRightClick(); });
+
+function cancelByRightClick() {
+  const had = !!(pending || view.drag || view.armed || view.skillArmed);
+  cancelInteraction();
+  if (had) audio.play('click');
+}
 
 function refreshPopover() {
   if (view.selectedTower != null) ui.towerPopover(game, view.selectedTower);
@@ -358,7 +367,7 @@ function toggleSkill() {
   if (!game.skillReady) { ui.showTip(game.phase === 'combat' ? `火雨冷却中：还要 ${Math.ceil(game.skillCd)} 秒` : '火雨只能在战斗中使用', 1800); audio.play('deny'); return; }
   view.skillArmed = !view.skillArmed;
   view.armed = null;
-  if (view.skillArmed) { audio.play('click'); tipOnce('skillAim', '点击地图上的位置落下火雨；Esc 或再按一次 Q 取消', 3500); }
+  if (view.skillArmed) { audio.play('click'); tipOnce('skillAim', '左键点击地图落下火雨；右键、Esc 或再按一次 Q 取消', 3500); }
 }
 
 function togglePause(force?: boolean) {

@@ -1,4 +1,4 @@
-import { AFFIXES, SKILL, MAP_H, MAP_W, RANGE_Y_RATIO, TILE, TowerType } from './config';
+import { AFFIXES, ENEMIES, SKILL, MAP_H, MAP_W, RANGE_Y_RATIO, TILE, TowerType } from './config';
 import { Enemy, Game, Tower, towerStats, isSpecial } from './game';
 import { Sprite, SpriteBank, towerKey } from './sprites';
 
@@ -111,6 +111,7 @@ export class Renderer {
     this.drawProjectiles(g);
     this.drawMeteors(g);
     this.drawFx(g);
+    this.drawLaneForecast(g);
     this.drawSkillAim(g, v);
     this.drawGhost(g, v);
     c.restore();
@@ -615,6 +616,72 @@ export class Renderer {
       }
       c.restore();
     }
+  }
+
+  // 每个出怪口旁边挂一块小牌子：这一路会来哪些怪、各几只
+  private drawLaneForecast(g: Game) {
+    if (g.phase !== 'build' && g.phase !== 'draft' && g.phase !== 'combat') return;
+    const fc = g.laneForecast();
+    const c = this.ctx;
+    const multi = g.map.lanes.length > 1;
+    const ICON = 24, GAP = 6, h = 32;
+    c.save();
+    c.globalAlpha = g.phase === 'combat' ? 0.75 : 1;
+    c.textBaseline = 'middle';
+    g.map.lanes.forEach((lane, i) => {
+      const row = fc[i];
+      if (!row.length) return;
+      const label = multi ? g.map.def.laneNames[i] : (g.phase === 'combat' ? '待出' : '下一波');
+      c.font = '900 13px "Noto Serif SC", serif';
+      const labelW = c.measureText(label).width;
+      c.font = '900 13px Cinzel, "Noto Serif SC", serif';
+      const cells = row.map((it) => ({ ...it, tw: c.measureText(`×${it.count}`).width }));
+      const w = 10 + labelW + 8 + cells.reduce((s, it) => s + ICON + 2 + it.tw + GAP, 0) + 4;
+      const x = 6;
+      // 备战时盖在路上（路上不能建塔，不挡视线）；战斗中挪到路下方，免得挡住刚出来的怪
+      const combat = g.phase === 'combat';
+      const y = combat ? lane.pts[0].y + 26 : lane.pts[0].y - h / 2;
+      c.fillStyle = 'rgba(43,30,22,0.86)';
+      c.strokeStyle = '#C8963E';
+      c.lineWidth = 2;
+      c.beginPath();
+      c.roundRect(x, y, w, h, 8);
+      c.fill();
+      c.stroke();
+      // 战斗中牌子在路下方：加个小三角指回这条路
+      if (combat) {
+      c.beginPath();
+      c.moveTo(x + 14, y); c.lineTo(x + 20, y - 7); c.lineTo(x + 26, y);
+      c.closePath();
+      c.fill();
+      }
+      let cx = x + 10;
+      c.font = '900 13px "Noto Serif SC", serif';
+      c.fillStyle = '#E8D3A2';
+      c.textAlign = 'left';
+      c.fillText(label, cx, y + h / 2 + 1);
+      cx += labelW + 8;
+      c.font = '900 13px Cinzel, "Noto Serif SC", serif';
+      for (const it of cells) {
+        const def = ENEMIES[it.kind];
+        const sp = this.sp.enemy.get(it.kind)!;
+        const k = Math.min(ICON / sp.w, ICON / sp.h);
+        // 精灵锚点在脚下：把它的可视中心对到格子中心
+        const cyMid = y + h / 2;
+        this.drawSprite(sp, cx + ICON / 2 + (sp.ax - sp.w / 2) * k, cyMid + (sp.ay - sp.h / 2) * k, k);
+        if (def.boss) {
+          c.strokeStyle = '#FF6A4A';
+          c.lineWidth = 2;
+          c.beginPath();
+          c.arc(cx + ICON / 2, cyMid, ICON / 2 + 1, 0, TAU);
+          c.stroke();
+        }
+        c.fillStyle = def.boss ? '#FF8A6A' : def.flying ? '#9FD4F2' : '#F6EBD2';
+        c.fillText(`×${it.count}`, cx + ICON + 2, cyMid + 1);
+        cx += ICON + 2 + it.tw + GAP;
+      }
+    });
+    c.restore();
   }
 
   private drawGhost(g: Game, v: ViewState) {
