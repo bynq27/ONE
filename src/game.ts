@@ -131,23 +131,7 @@ export class Game {
     this.wave++;
     this.phase = 'combat';
     this.combatT = 0;
-    this.spawnQueue = [];
-    let t = 0;
-    let groupStart = 0;
-    const lanes = this.map.lanes.length;
-    for (const grp of this.map.def.waves[this.wave - 1]) {
-      if (grp.with) t = groupStart;
-      t += grp.delay ?? 0;
-      groupStart = t;
-      const n = this.groupCount(grp);
-      const gap = grp.interval; // 数量变多时波次变长，不压缩间隔（否则范围塔反而更强）
-      for (let i = 0; i < n; i++) {
-        const lane = grp.lane === 'alt' ? i % lanes : Math.min(lanes - 1, grp.lane ?? 0);
-        this.spawnQueue.push({ t, kind: grp.kind, lane });
-        t += gap;
-      }
-    }
-    this.spawnQueue.sort((a, b) => a.t - b.t);
+    this.spawnQueue = this.buildQueue(this.wave);
     this.emit('waveStart', this.wave);
   }
 
@@ -681,6 +665,41 @@ export class Game {
   private updateFx(dt: number) {
     for (const f of this.fx) f.t += dt;
     this.fx = this.fx.filter((f) => f.t < f.dur);
+  }
+
+  // 按波次配置生成出怪队列（开波与路口预告共用，保证预告和实际一致）
+  private buildQueue(n: number) {
+    const q: { t: number; kind: EnemyKind; lane: number }[] = [];
+    const groups = this.map.def.waves[n - 1];
+    if (!groups) return q;
+    let t = 0;
+    let groupStart = 0;
+    const lanes = this.map.lanes.length;
+    for (const grp of groups) {
+      if (grp.with) t = groupStart;
+      t += grp.delay ?? 0;
+      groupStart = t;
+      const cnt = this.groupCount(grp);
+      const gap = grp.interval; // 数量变多时波次变长，不压缩间隔（否则范围塔反而更强）
+      for (let i = 0; i < cnt; i++) {
+        const lane = grp.lane === 'alt' ? i % lanes : Math.min(lanes - 1, grp.lane ?? 0);
+        q.push({ t, kind: grp.kind, lane });
+        t += gap;
+      }
+    }
+    return q.sort((a, b) => a.t - b.t);
+  }
+
+  // 各路口的出怪预告：备战时是下一波全部，战斗中是还没出来的
+  laneForecast(): { kind: EnemyKind; count: number }[][] {
+    const out = this.map.lanes.map(() => [] as { kind: EnemyKind; count: number }[]);
+    const q = this.phase === 'combat' ? this.spawnQueue : this.phase === 'build' || this.phase === 'draft' ? this.buildQueue(this.nextWave) : [];
+    for (const it of q) {
+      const row = out[it.lane];
+      const hit = row.find((x) => x.kind === it.kind);
+      if (hit) hit.count++; else row.push({ kind: it.kind, count: 1 });
+    }
+    return out;
   }
 
   // 下一波预告
