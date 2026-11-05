@@ -49,3 +49,6 @@ npm run build   # 打包成 dist/index.html 单文件
 | src/main.ts | 输入（拖拽/点击/键盘）、主循环、存档 |
 | src/audio.ts | 音效与背景音乐 |
 | src/zzfx.ts | ZzFX 合成器（MIT） |
+
+## 另一个项目
+`mystery-game/`：宋代背景的推理断案游戏（筹备中），与塔防无关，详见该文件夹的 README。

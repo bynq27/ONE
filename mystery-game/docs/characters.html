@@ -1,0 +1,309 @@
+<title>雨夜酒楼角色设定</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Zhi+Mang+Xing&family=Noto+Sans+SC:wght@400;700&display=swap">
+<style>
+/* 布局：四张角色卡，每张上半是一块灯影幕布（皮影可动），下半是设定；宽屏两列，手机一列 */
+:root {
+  --bg: #e9edee;
+  --surface: #f6f8f8;
+  --fg: #1a2328;
+  --muted: #56636a;
+  --line: #c6cfd2;
+  --accent: #8c2b1f;
+  --display: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', serif;
+  --body: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11171b; --surface: #182128; --fg: #e1e7ea; --muted: #97a6ad;
+    --line: #2b3840; --accent: #e07a62; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11171b; --surface: #182128; --fg: #e1e7ea; --muted: #97a6ad;
+  --line: #2b3840; --accent: #e07a62; color-scheme: dark;
+}
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--body); font-size: 16px; line-height: 1.8;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 64px;
+}
+.wrap { max-width: 960px; margin: 0 auto; display: grid; gap: 40px; }
+header { display: grid; gap: 10px; }
+.eyebrow { color: var(--muted); font-size: 13px; letter-spacing: .2em; }
+h1 { font-family: var(--display); font-weight: 400; font-size: clamp(36px, 7vw, 56px); line-height: 1.2; margin: 0; text-wrap: balance; }
+p { margin: 0; max-width: 42em; }
+.bar { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+button {
+  font: inherit; font-size: 14px; cursor: pointer;
+  background: var(--surface); color: var(--fg);
+  border: 1px solid var(--line); padding: 6px 16px;
+}
+button:hover { border-color: var(--accent); color: var(--accent); }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button.red { background: #8c2b1f; color: #f3d38e; border-color: #8c2b1f; }
+button.red:hover { background: #a3352a; color: #f3d38e; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr)); gap: 28px; }
+.card { display: grid; grid-template-rows: auto 1fr; background: var(--surface); border: 1px solid var(--line); min-width: 0; }
+.stage svg { display: block; width: 100%; height: auto; }
+.info { padding: 18px 20px 22px; display: grid; gap: 10px; align-content: start; }
+.name { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.name h2 { font-family: var(--display); font-weight: 400; font-size: 34px; line-height: 1.2; margin: 0; }
+.role { color: var(--accent); font-size: 14px; }
+dl { margin: 0; display: grid; grid-template-columns: 4.5em 1fr; gap: 4px 12px; }
+dt { color: var(--muted); font-size: 14px; }
+dd { margin: 0; min-width: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+.chip i { width: 16px; height: 16px; border: 1px solid var(--line); display: inline-block; }
+.ink-layer, .reveal, .fan-drop { transition: opacity .7s ease; }
+.note { border-top: 1px solid var(--line); padding-top: 24px; display: grid; gap: 10px; }
+.note h2 { font-family: var(--display); font-weight: 400; font-size: 28px; margin: 0; }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">第一章试玩版 · 角色设定 · 画风：灯影戏台</div>
+    <h1>雨夜酒楼 · 角色设定</h1>
+    <p>四个主要人物都按皮影的做法拆成头、身、前臂、后臂几块，关节处用铆钉相连。下面的皮影是活的，每个人都在做自己的标志动作，游戏里就是这样演的。</p>
+    <div class="bar"><button id="toggle" type="button">暂停动作</button></div>
+  </header>
+
+  <div class="grid">
+    <article class="card">
+      <div class="stage" data-k="shen"></div>
+      <div class="info">
+        <div class="name"><h2>沈砚</h2><span class="role">主角 · 提刑司检法官</span></div>
+        <dl>
+          <dt>年纪</dt><dd>二十六岁，书生出身，刚调来汴京</dd>
+          <dt>性格</dt><dd>温和、话少、看东西极仔细，想通的时候眼睛会一亮</dd>
+          <dt>装束</dt><dd>绿袍、红腰带，戴两翅平伸的展脚幞头，侧影里一眼可认</dd>
+          <dt>标志</dt><dd>笔杆抵着下巴轻轻点，想通了就"啪"地合上卷宗</dd>
+        </dl>
+        <div class="chips"><span class="chip"><i style="background:#2f6b4f"></i>官绿</span><span class="chip"><i style="background:#b8322a"></i>腰带红</span><span class="chip"><i style="background:#1a1210"></i>幞头黑</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="stage" data-k="fan"></div>
+      <div class="info">
+        <div class="name"><h2>老樊</h2><span class="role">老仵作 · 搭档</span></div>
+        <dl>
+          <dt>年纪</dt><dd>六十岁，验了一辈子尸</dd>
+          <dt>性格</dt><dd>嘴硬心软，嫌沈砚"读书人手太干净"，却总把最要紧的发现留给他</dd>
+          <dt>装束</dt><dd>打补丁的旧褐布衣、软头巾、一把花白长须</dd>
+          <dt>标志</dt><dd>捋胡子、摇头；验尸前先点一把苍术熏一熏</dd>
+        </dl>
+        <div class="chips"><span class="chip"><i style="background:#7a5230"></i>旧褐</span><span class="chip"><i style="background:#efe3c4"></i>须白</span><span class="chip"><i style="background:#4a3426"></i>头巾</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="stage" data-k="fu"></div>
+      <div class="info">
+        <div class="name"><h2>阿福</h2><span class="role">店小二 · 关键证人</span></div>
+        <dl>
+          <dt>年纪</dt><dd>十七岁，在酒楼跑堂三年</dd>
+          <dt>性格</dt><dd>胆小话多，什么都爱往大了说，证词里真话和自己的脑补搅在一起</dd>
+          <dt>装束</dt><dd>红短衫、绿裤，肩上搭一块抹布，头巾在脑后打结</dd>
+          <dt>标志</dt><dd>一紧张就发抖、搓手、擦汗</dd>
+        </dl>
+        <div class="chips"><span class="chip"><i style="background:#b8322a"></i>短衫红</span><span class="chip"><i style="background:#2f6b4f"></i>裤绿</span><span class="chip"><i style="background:#e9dfc6"></i>抹布</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="stage" data-k="zhou"></div>
+      <div class="info">
+        <div class="name"><h2>周四郎</h2><span class="role">绸缎商 · 真凶</span></div>
+        <dl>
+          <dt>年纪</dt><dd>四十岁，掌柜的结拜兄弟</dd>
+          <dt>性格</dt><dd>体面、和气、出手大方，常打赏阿福，证人们都向着他</dd>
+          <dt>装束</dt><dd>深紫绸袍、钱纹镂花，戴高高的方巾，手不离折扇</dd>
+          <dt>标志</dt><dd>慢慢摇扇。被揭穿时扇子落地，脸上透出暗纹，画面转为水墨</dd>
+        </dl>
+        <div class="chips"><span class="chip"><i style="background:#3d3a78"></i>绸紫</span><span class="chip"><i style="background:#f6d28d"></i>钱纹</span><span class="chip"><i style="background:#b3261e"></i>逆转朱红</span></div>
+        <div class="bar"><button id="reveal" class="red" type="button">揭穿他</button></div>
+      </div>
+    </article>
+  </div>
+
+  <div class="note">
+    <h2>说明</h2>
+    <p>周四郎平时的脸和好人一样，是镂空的清秀面孔。点「揭穿他」可以看到逆转时的演出：扇子落地，脸上透出暗纹，幕布褪成水墨，朱红的"破绽"压上来。这一招整章只用一次。</p>
+    <p>这些皮影都是用代码画的，关节角度由程序控制。正式版可以请画师按同样的拆分方式画出精细的皮子，替换进来，动作代码不用改。</p>
+  </div>
+</div>
+
+<script>
+(() => {
+  const INK = '#1a1210', HOLE = '#f6d28d', SKIN = '#f7d79a', ROD = '#3a2a20';
+  const SH_F = [8, -165], SH_B = [-4, -165], NECK = [4, -178];
+  const rad = d => d * Math.PI / 180;
+  const rot = (x, y, a) => { const c = Math.cos(rad(a)), s = Math.sin(rad(a)); return [x * c - y * s, x * s + y * c]; };
+
+  const fanShape = (() => {
+    const p = (r, a) => [ (r * Math.sin(rad(a))).toFixed(1), (r * Math.cos(rad(a))).toFixed(1) ];
+    const ri = 10, ro = 50, a0 = -42, a1 = 42;
+    const [x0, y0] = p(ri, a0), [x1, y1] = p(ro, a0), [x2, y2] = p(ro, a1), [x3, y3] = p(ri, a1);
+    let ribs = '';
+    for (let a = a0; a <= a1 + 0.1; a += 14) { const [rx, ry] = p(ro, a); ribs += `M0 0 L${rx} ${ry} `; }
+    return `<path d="M${x0} ${y0} L${x1} ${y1} A${ro} ${ro} 0 0 0 ${x2} ${y2} L${x3} ${y3} A${ri} ${ri} 0 0 1 ${x0} ${y0} Z" fill="#efe1b8" fill-opacity=".6" stroke="${INK}" stroke-width="2.2"/>` +
+      `<path d="${ribs}" stroke="${INK}" stroke-width="1" fill="none"/>` +
+      `<path d="M-14 40 Q-4 30 4 38 Q12 28 20 40" fill="none" stroke="#2f6b4f" stroke-width="2"/>`;
+  })();
+
+  const FACE = `<path d="M0 0 L6 -6 Q14 -10 18 -14 L22 -20 L19 -23 L23 -27 L20 -29 L27 -33 L19 -38 Q18 -46 10 -50 Q-12 -54 -16 -34 Q-18 -14 -6 -6 Z" fill="${SKIN}" fill-opacity=".3" stroke="${INK}" stroke-width="2.8" stroke-linejoin="round"/>`;
+  const EYE = `<path d="M8 -34 Q13 -38 18 -34 Q13 -32 8 -34 Z" fill="${INK}"/><path d="M6 -40 Q12 -43 19 -40" fill="none" stroke="${INK}" stroke-width="2.2"/>`;
+  const NAPE = `<path d="M-15 -36 Q-20 -20 -10 -8" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>`;
+
+  const C = {
+    shen: {
+      top: '#2f6b4f', skirt: '#24553e', arm: '#2f6b4f', armB: '#24553e', L1: 42, L2: 38,
+      hat: `<path d="M-17 -38 Q-16 -66 4 -66 Q20 -64 19 -44 Z" fill="${INK}"/><rect x="-80" y="-56" width="176" height="4" rx="2" fill="${INK}"/>`,
+      extraHead: '',
+      torso: `<rect x="-24" y="-103" width="50" height="9" fill="#b8322a" fill-opacity=".92" stroke="${INK}" stroke-width="2"/><path d="M2 -176 L10 -150 L18 -172" fill="none" stroke="${HOLE}" stroke-width="3"/>` +
+        `<circle cx="2" cy="-140" r="4" fill="${HOLE}"/><circle cx="12" cy="-124" r="4" fill="${HOLE}"/><path d="M-14 -60 v40 M0 -60 v44 M14 -60 v40" stroke="${INK}" stroke-width="1.5"/>`,
+      prop: `<line x1="0" y1="-4" x2="0" y2="40" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/><path d="M-3 38 Q0 52 3 38 Z" fill="${INK}"/>`,
+      pose(t) { const tap = Math.pow(Math.max(0, Math.sin(t * 3.4)), 8); return { x: 0, y: 0, h: -2 + 4 * tap, f1: -10, f2: -150 - 8 * tap, b1: 12, b2: -14 }; }
+    },
+    fan: {
+      top: '#7a5230', skirt: '#644226', arm: '#7a5230', armB: '#644226', L1: 40, L2: 36,
+      hat: `<path d="M-18 -36 Q-15 -62 8 -60 Q22 -56 17 -42 Q0 -48 -18 -36 Z" fill="#4a3426" stroke="${INK}" stroke-width="2"/><path d="M-16 -40 Q-30 -34 -30 -18" fill="none" stroke="#4a3426" stroke-width="5" stroke-linecap="round"/>`,
+      extraHead: `<path d="M18 -15 Q26 6 16 26 Q11 34 5 26 Q1 8 6 -8 Z" fill="#efe3c4" fill-opacity=".75" stroke="${INK}" stroke-width="2"/><path d="M10 -6 Q14 8 10 20" fill="none" stroke="${INK}" stroke-width="1"/><path d="M5 -41 Q12 -46 20 -41" fill="none" stroke="#efe3c4" stroke-width="3"/>`,
+      torso: `<path d="M-14 -150 h16 v14 h-16 Z" fill="none" stroke="${HOLE}" stroke-width="2" stroke-dasharray="3 2"/><path d="M8 -70 h14 v12 h-14 Z" fill="none" stroke="${HOLE}" stroke-width="2" stroke-dasharray="3 2"/>` +
+        `<rect x="-24" y="-102" width="50" height="7" fill="#3a2a20" stroke="${INK}" stroke-width="1.5"/>`,
+      prop: '',
+      pose(t) { return { x: 0, y: 0, h: 8 + 3 * Math.sin(t * 1.1), f1: -14, f2: -146 + 12 * Math.sin(t * 1.7), b1: 18, b2: -24 }; }
+    },
+    fu: {
+      top: '#b8322a', skirt: '#2f6b4f', arm: '#b8322a', armB: '#962920', L1: 40, L2: 36,
+      hat: `<path d="M-17 -38 Q-16 -62 4 -62 Q20 -60 19 -44 Q2 -50 -17 -38 Z" fill="#2c3336" stroke="${INK}" stroke-width="2"/><path d="M-16 -44 Q-30 -42 -34 -30 M-16 -44 Q-26 -50 -34 -46" fill="none" stroke="#2c3336" stroke-width="4" stroke-linecap="round"/>`,
+      extraHead: `<path d="M31 -40 q5 7 0 10 q-5 -3 0 -10 Z" fill="#9cc3cf"/>`,
+      torso: `<path d="M-8 -176 L4 -176 L0 -118 L-12 -121 Z" fill="#e9dfc6" fill-opacity=".8" stroke="${INK}" stroke-width="2"/>` +
+        `<path d="M-6 -96 L28 -96 L32 -40 L-2 -40 Z" fill="#e9dfc6" fill-opacity=".65" stroke="${INK}" stroke-width="2"/><circle cx="12" cy="-138" r="4" fill="${HOLE}"/>`,
+      prop: '',
+      pose(t) { const r = Math.sin(t * 13); return { x: 1.4 * Math.sin(t * 37), y: 0.8 * Math.sin(t * 29), h: -3 + 3 * Math.sin(t * 23), f1: -40, f2: -70 + 10 * r, b1: -34, b2: -80 - 10 * r }; }
+    },
+    zhou: {
+      top: '#3d3a78', skirt: '#302d63', arm: '#3d3a78', armB: '#302d63', L1: 42, L2: 38,
+      hat: `<path d="M-16 -40 L-14 -78 L14 -78 L19 -43 Z" fill="${INK}"/><path d="M-10 -72 L12 -72 M-11 -60 L15 -60" stroke="${HOLE}" stroke-width="1.5" opacity=".7"/>`,
+      extraHead: `<path d="M18 -18 Q22 -12 18 -6" fill="none" stroke="${INK}" stroke-width="2"/>` +
+        `<g class="reveal" opacity="0"><path d="M0 0 L6 -6 Q14 -10 18 -14 L22 -20 L19 -23 L23 -27 L20 -29 L27 -33 L19 -38 Q18 -46 10 -50 Q-12 -54 -16 -34 Q-18 -14 -6 -6 Z" fill="${INK}"/>` +
+        `<path d="M-6 -30 Q4 -44 12 -28 Q18 -18 8 -14 M-10 -16 Q0 -22 6 -10" fill="none" stroke="#b3261e" stroke-width="2.4"/><path d="M8 -35 Q14 -38 19 -34 Q14 -33 8 -35 Z" fill="${HOLE}"/></g>`,
+      torso: `<g fill="none" stroke="${HOLE}" stroke-width="2"><circle cx="0" cy="-146" r="5"/><circle cx="14" cy="-126" r="5"/><circle cx="2" cy="-110" r="5"/><circle cx="-12" cy="-60" r="5"/><circle cx="8" cy="-40" r="5"/><circle cx="18" cy="-70" r="5"/></g>` +
+        `<g fill="${HOLE}"><rect x="-2" y="-148" width="4" height="4"/><rect x="12" y="-128" width="4" height="4"/><rect x="0" y="-112" width="4" height="4"/><rect x="-14" y="-62" width="4" height="4"/><rect x="6" y="-42" width="4" height="4"/><rect x="16" y="-72" width="4" height="4"/></g>`,
+      prop: `<g class="fan-hand">${fanShape}</g>`,
+      pose(t, rev) {
+        if (rev) return { x: 0, y: 0, h: -12 + 1.2 * Math.sin(t * 30), f1: 14, f2: -18, b1: 8, b2: -10 };
+        return { x: 0, y: 0, h: 2 * Math.sin(t * 0.8), f1: -25, f2: -100 + 14 * Math.sin(t * 1.5), b1: 26, b2: -40 };
+      }
+    }
+  };
+
+  function arm(id, c, col, prop) {
+    return `<g data-j="${id}1">` +
+      `<rect x="-6.5" y="-5" width="13" height="${c.L1 + 10}" rx="6.5" fill="${col}" fill-opacity=".9" stroke="${INK}" stroke-width="2.5"/>` +
+      `<g data-j="${id}2" transform="translate(0 ${c.L1})">` +
+        `<rect x="-6" y="-4" width="12" height="${c.L2 + 6}" rx="6" fill="${col}" fill-opacity=".9" stroke="${INK}" stroke-width="2.5"/>` +
+        `<g transform="translate(0 ${c.L2})">${prop || ''}<ellipse cx="0" cy="6" rx="5" ry="7" fill="${SKIN}" fill-opacity=".45" stroke="${INK}" stroke-width="2"/></g>` +
+        `<circle r="3" fill="${INK}"/>` +
+      `</g><circle r="3.2" fill="${INK}"/></g>`;
+  }
+
+  function build(k) {
+    const c = C[k];
+    const ink = k === 'zhou'
+      ? `<g class="ink-layer" opacity="0"><rect x="-112" y="-272" width="224" height="282" fill="#ebe8e0"/>` +
+        `<path d="M-112 -40 Q-60 -90 -10 -50 Q40 -100 112 -60 L112 10 L-112 10 Z" fill="#1b1b1b" opacity=".2"/>` +
+        `<path d="M-112 -10 Q-50 -40 20 -14 Q70 -30 112 -8 L112 10 L-112 10 Z" fill="#1b1b1b" opacity=".45"/>` +
+        `<text x="-106" y="-222" font-size="42" fill="#b3261e" font-family="'Zhi Mang Xing','STXingkai','KaiTi',cursive" transform="rotate(-8 -106 -222)">破绽</text></g>`
+      : '';
+    const drop = k === 'zhou' ? `<g class="fan-drop" opacity="0" transform="translate(50 -4) rotate(-96)">${fanShape}</g>` : '';
+    return `<svg viewBox="-120 -280 240 320" role="img" aria-label="${k}">
+      <defs>
+        <radialGradient id="lamp-${k}" cx=".5" cy=".4" r=".78"><stop offset="0" stop-color="#fbe3a8"/><stop offset=".62" stop-color="#eeb466"/><stop offset="1" stop-color="#a85a26"/></radialGradient>
+        <clipPath id="clip-${k}"><rect x="-112" y="-272" width="224" height="282"/></clipPath>
+      </defs>
+      <rect x="-120" y="-280" width="240" height="320" fill="#22140f"/>
+      <rect x="-112" y="-272" width="224" height="282" fill="url(#lamp-${k})"/>
+      <g clip-path="url(#clip-${k})">
+        ${ink}
+        <g data-j="root">
+          <line data-r="n" stroke="${ROD}" stroke-width="2"/><line data-r="b" stroke="${ROD}" stroke-width="2"/><line data-r="f" stroke="${ROD}" stroke-width="2"/>
+          ${arm('b', c, c.armB, '')}
+          <path d="M-26 -95 L26 -95 L34 -8 L-34 -8 Z" fill="${c.skirt}" fill-opacity=".9" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M-30 -8 L-6 -8 L-4 0 L-34 0 Z" fill="${INK}"/><path d="M8 -8 L32 -8 L44 0 L6 0 Z" fill="${INK}"/>
+          <path d="M-22 -95 L-18 -170 Q0 -182 18 -172 L26 -130 Q28 -110 24 -95 Z" fill="${c.top}" fill-opacity=".9" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
+          ${c.torso}
+          <g data-j="h">${NAPE}${FACE}${EYE}${c.extraHead}${c.hat}<circle r="3" fill="${INK}"/></g>
+          ${arm('f', c, c.arm, c.prop)}
+        </g>
+        ${drop}
+      </g>
+      <rect x="-112" y="-272" width="224" height="282" fill="none" stroke="#6b3a22" stroke-width="4"/>
+    </svg>`;
+  }
+
+  const names = { shen: '沈砚', fan: '老樊', fu: '阿福', zhou: '周四郎' };
+  const puppets = [];
+  document.querySelectorAll('.stage').forEach(el => {
+    const k = el.dataset.k;
+    el.innerHTML = build(k);
+    const svg = el.querySelector('svg');
+    svg.setAttribute('aria-label', names[k] + '的皮影');
+    const q = s => svg.querySelector(s);
+    puppets.push({ k, c: C[k], svg, root: q('[data-j="root"]'), h: q('[data-j="h"]'),
+      f1: q('[data-j="f1"]'), f2: q('[data-j="f2"]'), b1: q('[data-j="b1"]'), b2: q('[data-j="b2"]'),
+      rn: q('[data-r="n"]'), rf: q('[data-r="f"]'), rb: q('[data-r="b"]') });
+  });
+
+  let revealed = false;
+  function hand(S, a1, a2, c) {
+    const [ex, ey] = rot(0, c.L1, a1);
+    const [hx, hy] = rot(...rot(0, c.L2 + 6, a2), a1);
+    return [S[0] + ex + hx, S[1] + ey + hy];
+  }
+  const setRod = (ln, x, y) => { ln.setAttribute('x1', x.toFixed(1)); ln.setAttribute('y1', y.toFixed(1)); ln.setAttribute('x2', (x * 0.5 - 18).toFixed(1)); ln.setAttribute('y2', 40); };
+
+  function apply(t) {
+    for (const p of puppets) {
+      const s = p.c.pose(t, revealed);
+      p.root.setAttribute('transform', `translate(${s.x.toFixed(2)} ${s.y.toFixed(2)})`);
+      p.h.setAttribute('transform', `translate(${NECK[0]} ${NECK[1]}) rotate(${s.h.toFixed(2)})`);
+      p.f1.setAttribute('transform', `translate(${SH_F[0]} ${SH_F[1]}) rotate(${s.f1.toFixed(2)})`);
+      p.f2.setAttribute('transform', `translate(0 ${p.c.L1}) rotate(${s.f2.toFixed(2)})`);
+      p.b1.setAttribute('transform', `translate(${SH_B[0]} ${SH_B[1]}) rotate(${s.b1.toFixed(2)})`);
+      p.b2.setAttribute('transform', `translate(0 ${p.c.L1}) rotate(${s.b2.toFixed(2)})`);
+      const hf = hand(SH_F, s.f1, s.f2, p.c), hb = hand(SH_B, s.b1, s.b2, p.c);
+      setRod(p.rf, hf[0], hf[1]); setRod(p.rb, hb[0], hb[1]); setRod(p.rn, 2, -150);
+    }
+  }
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let playing = !reduce, t0 = performance.now(), tPaused = 0, raf = 0;
+  const btn = document.getElementById('toggle');
+  function frame(now) { apply((now - t0) / 1000); raf = requestAnimationFrame(frame); }
+  function play() { t0 = performance.now() - tPaused * 1000; raf = requestAnimationFrame(frame); btn.textContent = '暂停动作'; }
+  function pause() { cancelAnimationFrame(raf); tPaused = (performance.now() - t0) / 1000; btn.textContent = '播放动作'; }
+  btn.addEventListener('click', () => { playing = !playing; playing ? play() : pause(); });
+  apply(0.6);
+  if (playing) play(); else btn.textContent = '播放动作';
+
+  const z = puppets.find(p => p.k === 'zhou');
+  const rbtn = document.getElementById('reveal');
+  rbtn.addEventListener('click', () => {
+    revealed = !revealed;
+    z.svg.querySelector('.reveal').setAttribute('opacity', revealed ? 1 : 0);
+    z.svg.querySelector('.ink-layer').setAttribute('opacity', revealed ? 1 : 0);
+    z.svg.querySelector('.fan-drop').setAttribute('opacity', revealed ? 1 : 0);
+    z.svg.querySelector('.fan-hand').setAttribute('opacity', revealed ? 0 : 1);
+    rbtn.textContent = revealed ? '复原' : '揭穿他';
+    if (!playing) apply(tPaused || 0.6);
+  });
+})();
+</script>
