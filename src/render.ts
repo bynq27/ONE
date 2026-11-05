@@ -1,4 +1,4 @@
-import { AFFIXES, ENEMIES, SKILL, MAP_H, MAP_W, RANGE_Y_RATIO, TILE, TowerType } from './config';
+import { AFFIXES, ENEMIES, SHAMAN, SKILL, MAP_H, MAP_W, RANGE_Y_RATIO, TILE, TowerType } from './config';
 import { Enemy, Game, Tower, towerStats, isSpecial } from './game';
 import { Sprite, SpriteBank, towerKey } from './sprites';
 
@@ -281,8 +281,38 @@ export class Renderer {
     }
     const scale = (e.dying > 0 ? 1 + 0.3 * (1 - dyingK) : 1) * (af && !e.def.boss ? 1.15 : 1);
     const dir = e.kind === 'wolf' || e.kind === 'wolfKing' ? e.dir : 1;
-    const img = e.flash > 0 && sp.flash ? sp.flash : sp.img;
-    this.drawSprite(sp, e.x, e.y + oy - fly, sx * scale * dir, sy * scale, 1, img);
+    const casting = e.kind === 'shaman' && e.castT > 0 && e.dying === 0;
+    if (casting) {
+      // 地面上的治疗范围随举杖逐渐亮起，提示玩家「快打断」
+      const k = Math.min(1, e.castT / SHAMAN.cast);
+      const R = SHAMAN.radius * TILE;
+      this.ellipse(e.x, e.y + 2, R, R * RANGE_Y_RATIO);
+      c.fillStyle = `rgba(155,234,94,${0.08 + 0.14 * k})`;
+      c.fill();
+      c.setLineDash([8, 6]);
+      c.lineWidth = 2;
+      c.strokeStyle = `rgba(155,234,94,${0.4 + 0.5 * k})`;
+      c.stroke();
+      c.setLineDash([]);
+      this.ellipse(e.x, e.y + 2, R * k, R * k * RANGE_Y_RATIO);
+      c.strokeStyle = '#C8FF8A';
+      c.lineWidth = 2.5;
+      c.stroke();
+    }
+    const body = casting ? this.sp.shamanCast : sp;
+    const img = e.flash > 0 && body.flash ? body.flash : body.img;
+    // 举杖时法杖从腰间抬到头顶：前 40% 做抬起的形变
+    const lift = casting ? Math.min(1, e.castT / (SHAMAN.cast * 0.4)) : 1;
+    this.drawSprite(body, e.x, e.y + oy - fly, sx * scale * dir, sy * scale * (casting ? 0.85 + 0.15 * lift : 1), 1, img);
+    if (casting) {
+      const k = Math.min(1, e.castT / SHAMAN.cast);
+      const ox = e.x + 5 * scale * dir, oyy = e.y - 58 * scale * (0.85 + 0.15 * lift);
+      const g2 = c.createRadialGradient(ox, oyy, 0, ox, oyy, 10 + 12 * k);
+      g2.addColorStop(0, `rgba(230,255,200,${0.5 + 0.4 * k})`);
+      g2.addColorStop(1, 'rgba(155,234,94,0)');
+      c.fillStyle = g2;
+      c.beginPath(); c.arc(ox, oyy, 10 + 12 * k, 0, TAU); c.fill();
+    }
     if (frozen) {
       c.fillStyle = 'rgba(160,220,255,0.45)';
       c.strokeStyle = 'rgba(240,252,255,0.9)';

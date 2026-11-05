@@ -4,7 +4,7 @@ import { SAMPLE_RATE, buildSamples } from './zzfx';
 
 export type Sfx =
   | 'shoot' | 'hit' | 'fire' | 'boom' | 'bolt' | 'coin' | 'kill' | 'merge' | 'build' | 'sell' | 'leak' | 'deny'
-  | 'click' | 'wave' | 'boss' | 'quake' | 'win' | 'lose' | 'skill' | 'elite' | 'draft';
+  | 'click' | 'wave' | 'boss' | 'quake' | 'win' | 'lose' | 'skill' | 'elite' | 'draft' | 'heal';
 
 type P = number[];
 // ZzFX 参数顺序：音量, 随机, 频率, 起音, 延音, 释放, 波形, 曲线, 滑音, 加速滑音, 跳音, 跳音时间, 重复, 噪声, 调制, 降采样, 回声, 延音音量, 衰减, 颤音, 滤波
@@ -23,6 +23,7 @@ const SFX: Partial<Record<Sfx, { p: P; gain?: number; gap?: number }>> = {
   click: { p: [.25, 0, 1000, 0, 0, .03, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, .5], gain: 0.35 },
   quake: { p: [1, .1, 45, .05, .4, .8, 4, 2, -1, 0, 0, 0, 0, 1, 0, .1, 0, .6, .1, .3, 300], gain: 0.9 },
   skill: { p: [.7, .05, 900, .02, .15, .35, 4, 1, -22, 0, 0, 0, 0, 1, 0, 0, 0, .6, .05, 0, 2200], gain: 0.7 },
+  heal: { p: [.3, 0, 700, .02, .08, .25, 0, 1.5, 6, 0, 300, .08, 0, 0, 0, 0, 0, .6, .02], gain: 0.3, gap: .35 },
   elite: { p: [.35, 0, 1500, 0, .03, .25, 0, 1.5, 0, 0, 400, .06, .1, 0, 0, 0, .1, .6, .01, .3], gain: 0.45, gap: .5 },
   boss: { p: [1, .05, 55, .05, .5, .8, 2, 1.5, -.6, 0, 0, 0, 0, .3, 4, .05, 0, .7, .1, .4, 500], gain: 0.9 },
 };

@@ -100,7 +100,7 @@ export const ENEMIES: Record<EnemyKind, EnemyDef> = {
   slime: { name: '史莱姆', hp: 40, speed: 1.0, armor: 0, bounty: 4, leak: 1, flying: false, boss: false, radius: 11, desc: '普通敌人' },
   wolf: { name: '狼', hp: 28, speed: 1.8, armor: 0, bounty: 5, leak: 1, flying: false, boss: false, radius: 11, desc: '跑得很快，成群出现' },
   golem: { name: '石魔像', hp: 180, speed: 0.6, armor: 0.3, bounty: 12, leak: 2, flying: false, boss: false, radius: 14, desc: '护甲 30%，火焰无视护甲' },
-  shaman: { name: '萨满', hp: 70, speed: 0.9, armor: 0, bounty: 10, leak: 1, flying: false, boss: false, radius: 12, desc: '每 2 秒为 1.5 格内的敌人回复 8% 最大生命（Boss 为 2%）' },
+  shaman: { name: '萨满', hp: 70, speed: 0.9, armor: 0, bounty: 10, leak: 1, flying: false, boss: false, radius: 12, desc: '每隔几秒停下举起法杖，0.8 秒后为 1.6 格内的同伴回复 15% 最大生命（Boss 为 3%）；举杖时打死或冻住它可以打断' },
   bat: { name: '蝙蝠', hp: 35, speed: 1.3, armor: 0, bounty: 6, leak: 1, flying: true, boss: false, radius: 11, desc: '飞行，直线飞向城门' },
   slimeKing: { name: '史莱姆王', hp: 900, speed: 0.7, armor: 0, bounty: 60, leak: 5, flying: false, boss: true, radius: 22, desc: '死亡时分裂成 4 只史莱姆' },
   wolfKing: { name: '狼王', hp: 1800, speed: 1.4, armor: 0, bounty: 90, leak: 6, flying: false, boss: true, radius: 20, desc: '每 8 秒冲刺 2 秒：速度 ×2，免疫减速' },
@@ -175,4 +175,6 @@ export const SKILL = {
   delay: 0.6, // 火球落地时间
   damage: (wave: number) => 150 + 20 * wave, // 火焰伤害，无视护甲，能打飞行
 };
-export const SHAMAN = { interval: 2, radius: 1.5, heal: 0.08, bossHeal: 0.02 };
+// 萨满：走一段路后停下举起法杖（cast 秒），法杖举到顶时给范围内受伤的同伴一次性回血；
+// 举杖途中被打死或被冻住，这次治疗就落空。附近没有受伤的同伴时不会停下来施法。
+export const SHAMAN = { interval: 3.5, cast: 0.8, radius: 1.6, heal: 0.15, bossHeal: 0.03 };

@@ -90,11 +90,12 @@ game.listener = (e: GameEvent, data?: unknown) => {
     case 'leak': audio.play('leak'); ui.flashLives(); break;
     case 'boss': audio.play('boss'); ui.showTip(`Boss 登场：${(data as { def: { name: string; desc: string } }).def.name}——${(data as { def: { desc: string } }).def.desc}`, 4500); break;
     case 'quake': audio.play('quake'); break;
+    case 'heal': audio.play('heal'); break;
     case 'elite': audio.play('elite'); tipOnce('elite', '精英敌人登场：带彩色光环的敌人有特殊词缀（护盾、再生、疾行、分裂、坚韧），点它查看', 6000); break;
     case 'waveStart': {
       audio.play('wave');
       const w = data as number;
-      if (game.map.def.waves[w - 1]?.some((gr) => gr.kind === 'shaman')) tipOnce('shaman', '萨满来了：它每 2 秒给周围的敌人回血，优先打掉它！（点它可以查看）', 6500);
+      if (game.map.def.waves[w - 1]?.some((gr) => gr.kind === 'shaman')) tipOnce('shaman', '萨满来了：它会停下举起法杖给周围的敌人回血——趁举杖时打死或冻住它就能打断！（点它可以查看）', 6500);
       if (w === 2) tipOnce('skill', '战斗中可以点右下角的「火雨」（快捷键 Q），在任意位置落下火球救急，冷却 40 秒', 6000);
       if (w === 8) tipOnce('bat', '蝙蝠会直接飞向城门：只有哨塔、霜晶塔和连弩塔能打到它们');
       if (w === 6) tipOnce('golem', '石魔像有 30% 护甲：火焰伤害无视护甲');

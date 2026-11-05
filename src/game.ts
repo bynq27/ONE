@@ -17,7 +17,7 @@ export interface Tower {
 export interface Enemy {
   id: number; kind: EnemyKind; def: EnemyDef; hp: number; maxHp: number; dist: number; x: number; y: number;
   auraSlow: number; timedSlow: number; timedSlowT: number; burnDps: number; burnT: number; burnSrc: number;
-  freeze: number; freezeCd: number; skillT: number; dashT: number; flash: number; speedMul: number; bounty: number; affix: Affix | null; lane: number;
+  freeze: number; freezeCd: number; skillT: number; castT: number; dashT: number; flash: number; speedMul: number; bounty: number; affix: Affix | null; lane: number;
   dying: number; phase: number; dir: number;
 }
 
@@ -40,7 +40,7 @@ export interface InvItem { type: BasicTower; star: number }
 
 export type GameEvent =
   | 'shoot' | 'fire' | 'boom' | 'bolt' | 'hit' | 'kill' | 'coin' | 'merge' | 'build' | 'sell' | 'leak'
-  | 'elite' | 'skill' | 'waveStart' | 'waveClear' | 'draft' | 'won' | 'lost' | 'deny' | 'boss' | 'quake' | 'pick';
+  | 'elite' | 'skill' | 'waveStart' | 'waveClear' | 'draft' | 'won' | 'lost' | 'deny' | 'boss' | 'quake' | 'pick' | 'heal';
 
 export interface MergeCheck { ok: boolean; result?: { type: TowerType; star: number }; reason?: string }
 
@@ -349,7 +349,7 @@ export class Game {
     const p = def.flying ? this.map.flyPointAt(lane, dist) : this.map.pointAt(lane, dist);
     const e: Enemy = {
       id: this.nextId++, kind, def, hp, maxHp: hp, dist, lane, x: p.x, y: p.y, auraSlow: 0, timedSlow: 0, timedSlowT: 0,
-      burnDps: 0, burnT: 0, burnSrc: 0, freeze: 0, freezeCd: 0, skillT: 0, dashT: 0, flash: 0, speedMul: d.speed * (affix === 'swift' ? 1.15 : 1), bounty: Math.max(1, Math.round(def.bounty * d.bounty * (affix ? ELITE_BOUNTY : 1) * hpFrac)), affix, dying: 0, phase: this.fxRng.next() * 6, dir: 1,
+      burnDps: 0, burnT: 0, burnSrc: 0, freeze: 0, freezeCd: 0, skillT: 0, castT: 0, dashT: 0, flash: 0, speedMul: d.speed * (affix === 'swift' ? 1.15 : 1), bounty: Math.max(1, Math.round(def.bounty * d.bounty * (affix ? ELITE_BOUNTY : 1) * hpFrac)), affix, dying: 0, phase: this.fxRng.next() * 6, dir: 1,
     };
     this.enemies.push(e);
     if (def.boss) { this.emit('boss', e); this.shake = Math.max(this.shake, 0.4); }
@@ -438,6 +438,29 @@ export class Game {
     }
   }
 
+  // 萨满：攒够时间、且附近有受伤的同伴时，停下举杖；举到顶（cast 秒）时一次性回血
+  private updateShaman(e: Enemy, dt: number) {
+    const r = SHAMAN.radius * TILE;
+    const hurtNear = () => this.enemies.filter((o) => o !== e && this.alive(o) && o.hp < o.maxHp && Math.hypot(o.x - e.x, (o.y - e.y) / RANGE_Y_RATIO) <= r);
+    if (e.castT > 0) {
+      if (e.freeze > 0 && e.affix !== 'swift') { e.castT = 0; e.skillT = SHAMAN.interval * 0.5; this.text(e.x, e.y - 44, '打断！', '#BFF0FF', 14); return; }
+      e.castT += dt;
+      if (e.castT < SHAMAN.cast) return;
+      e.castT = 0;
+      e.skillT = 0;
+      const targets = hurtNear();
+      for (const o of targets) {
+        o.hp = Math.min(o.maxHp, o.hp + o.maxHp * (o.def.boss ? SHAMAN.bossHeal : SHAMAN.heal));
+        this.fx.push({ kind: 'heal', x: o.x, y: o.y - o.def.radius, t: 0, dur: 0.6 });
+      }
+      this.fx.push({ kind: 'healPulse', x: e.x, y: e.y, t: 0, dur: 0.7 });
+      this.emit('heal');
+      return;
+    }
+    e.skillT = Math.min(SHAMAN.interval, e.skillT + dt);
+    if (e.skillT >= SHAMAN.interval && (e.freeze <= 0 || e.affix === 'swift') && hurtNear().length) e.castT = 1e-4;
+  }
+
   private updateEnemies(dt: number) {
     for (const e of this.enemies) {
       e.phase += dt;
@@ -449,22 +472,7 @@ export class Game {
       if (e.freezeCd > 0) e.freezeCd -= dt;
       if (e.affix === 'regen' && e.hp < e.maxHp) e.hp = Math.min(e.maxHp, e.hp + e.maxHp * (e.def.boss ? 0.01 : 0.02) * dt);
       // Boss 技能
-      if (e.kind === 'shaman') {
-        e.skillT += dt;
-        if (e.skillT >= SHAMAN.interval) {
-          e.skillT = 0;
-          const r = SHAMAN.radius * TILE;
-          let healed = false;
-          for (const o of this.enemies) {
-            if (o === e || !this.alive(o) || o.hp >= o.maxHp) continue;
-            if (Math.hypot(o.x - e.x, (o.y - e.y) / RANGE_Y_RATIO) > r) continue;
-            o.hp = Math.min(o.maxHp, o.hp + o.maxHp * (o.def.boss ? SHAMAN.bossHeal : SHAMAN.heal));
-            this.fx.push({ kind: 'heal', x: o.x, y: o.y - o.def.radius, t: 0, dur: 0.6 });
-            healed = true;
-          }
-          if (healed) this.fx.push({ kind: 'healPulse', x: e.x, y: e.y, t: 0, dur: 0.7 });
-        }
-      }
+      if (e.kind === 'shaman') this.updateShaman(e, dt);
       if (e.kind === 'wolfKing') {
         e.skillT += dt;
         if (e.dashT > 0) e.dashT -= dt;
@@ -482,6 +490,7 @@ export class Game {
       }
       // 移动
       let speed = e.def.speed * e.speedMul * TILE;
+      if (e.castT > 0) speed = 0; // 举杖施法时原地站定
       const dashing = e.dashT > 0;
       if (dashing) speed *= 2;
       else if (e.affix === 'swift') { e.freeze = 0; }

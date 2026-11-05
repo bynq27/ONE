@@ -119,6 +119,21 @@ ${star2Trim(-6, 16)}
 export const towerSvg = (type: TowerType, star: number) => svgDoc([-34, -70, 68, 80], towerBody(type, star));
 
 // ---------------- 敌人 ----------------
+// 萨满举杖姿势：法杖高举过头，宝珠更亮，双臂上扬
+const shamanCastBody = (): { vb: [number, number, number, number]; body: string } => ({ vb: [-18, -66, 36, 70], body: `${shadow(13, 4)}
+<line x1="9" y1="-14" x2="5" y2="-54" stroke="#5A3820" stroke-width="3" stroke-linecap="round"/>
+<path d="M-11 2 L-7 -20 Q0 -26 7 -20 L11 2 Q0 5 -11 2 Z" fill="#4E7A5A" stroke="${OUT}" stroke-width="2.2" stroke-linejoin="round"/>
+<path d="M-7 -6 L7 -6" stroke="#C9A04A" stroke-width="2"/>
+<path d="M5 -18 Q9 -26 7 -34" fill="none" stroke="${OUT}" stroke-width="5" stroke-linecap="round"/>
+<path d="M5 -18 Q9 -26 7 -34" fill="none" stroke="#4E7A5A" stroke-width="2.6" stroke-linecap="round"/>
+<path d="M-5 -18 Q-12 -26 -12 -32" fill="none" stroke="${OUT}" stroke-width="5" stroke-linecap="round"/>
+<path d="M-5 -18 Q-12 -26 -12 -32" fill="none" stroke="#4E7A5A" stroke-width="2.6" stroke-linecap="round"/>
+<path d="M-8 -20 Q-9 -34 0 -36 Q9 -34 8 -20 Q0 -16 -8 -20 Z" fill="#3E5E48" stroke="${OUT}" stroke-width="2.2" stroke-linejoin="round"/>
+<ellipse cx="0" cy="-25" rx="4.5" ry="3.5" fill="#1A120C"/>
+<circle cx="-1.8" cy="-25.5" r="1.1" fill="#D8FFB0"/><circle cx="1.8" cy="-25.5" r="1.1" fill="#D8FFB0"/>
+<circle cx="5" cy="-58" r="6.5" fill="#B6F57A" stroke="${OUT}" stroke-width="1.8"/>
+<circle cx="3.2" cy="-60" r="2.2" fill="#F4FFE6"/>` });
+
 function enemyBody(kind: EnemyKind): { vb: [number, number, number, number]; body: string } {
   switch (kind) {
     case 'slime':
@@ -284,6 +299,7 @@ async function makeSprite(svg: string, vb: [number, number, number, number], wit
 export interface SpriteBank {
   tower: Map<string, Sprite>;
   enemy: Map<EnemyKind, Sprite>;
+  shamanCast: Sprite;
   tree: Sprite;
   castle: Sprite;
   ground: Map<MapId, HTMLCanvasElement>;
@@ -304,7 +320,8 @@ export async function loadSprites(): Promise<SpriteBank> {
     const { vb, body } = enemyBody(kind);
     jobs.push(makeSprite(svgDoc(vb, body), vb, true).then((s) => { enemy.set(kind, s); }));
   }
-  let tree!: Sprite, castle!: Sprite;
+  let tree!: Sprite, castle!: Sprite, shamanCast!: Sprite;
+  { const { vb, body } = shamanCastBody(); jobs.push(makeSprite(svgDoc(vb, body), vb, true).then((s) => { shamanCast = s; })); }
   jobs.push(makeSprite(treeSvg(), [-28, -62, 56, 70]).then((s) => { tree = s; }));
   jobs.push(makeSprite(castleSvg(), [-46, -64, 92, 74]).then((s) => { castle = s; }));
   const ground = new Map<MapId, HTMLCanvasElement>();
@@ -315,7 +332,7 @@ export async function loadSprites(): Promise<SpriteBank> {
     jobs.push(loadSvg(groundSvg(getMap(id))).then((img) => { cv.getContext('2d')!.drawImage(img, 0, 0, cv.width, cv.height); }));
   }
   await Promise.all(jobs);
-  return { tower, enemy, tree, castle, ground };
+  return { tower, enemy, shamanCast, tree, castle, ground };
 }
 
 
