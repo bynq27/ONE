@@ -1,6 +1,6 @@
 import {
   AFFIX_LIST, Affix, ARMOR_PIERCE, HUNTER_BONUS, INTEREST_CAP, INTEREST_RATE, SKILL, ELITE_BOUNTY, ELITE_HP, BASIC_TOWERS, BUILD_TIME, DIFFICULTIES, Difficulty, DifficultyDef, BasicTower, CARD_WEIGHTS, EARLY_BONUS_PER_SEC, ENEMIES, EnemyDef, EnemyKind,
-  MAX_STAR, MOVES_PER_WAVE, RANGE_Y_RATIO, RECIPES, RECIPE_GUARANTEE_BY_WAVE, RELICS, REROLL_COST, RelicId,
+  MAX_STAR, MOVES_PER_WAVE, RANGE_Y_RATIO, RECIPES, RECIPE_GUARANTEE_BY_WAVE, RELICS, REROLL_COST, RelicId, RICH_GOLD, SKYWARD_BONUS,
   STAR_DMG, STAR_RANGE, SpecialTower, TILE, TOWERS, SHAMAN,
   TOWER_CARD_STAR2_CHANCE, TowerType, hpScale, waveClearBonus,
 } from './config';
@@ -101,7 +101,7 @@ export class Game {
   spawnQueue: { t: number; kind: EnemyKind; lane: number }[] = [];
   map: GameMap = getMap('valley');
   combatT = 0;
-  stats = { kills: 0, merges: 0, goldEarned: 0, leaks: 0, startedAt: 0, interest: 0, dmg: {} as Record<string, number>, leaked: {} as Record<string, { count: number; lives: number; elite: number }> };
+  stats = { kills: 0, merges: 0, goldEarned: 0, leaks: 0, startedAt: 0, interest: 0, dmg: {} as Record<string, number>, leaked: {} as Record<string, { count: number; lives: number; elite: number }>, leakLane: [] as number[], richWaves: 0, maxStartGold: 0 };
   listener: (e: GameEvent, data?: unknown) => void = () => {};
   private nextId = 1;
 
@@ -109,11 +109,11 @@ export class Game {
     const d = DIFFICULTIES[difficulty];
     Object.assign(this, {
       map: getMap(mapId),
-      phase: 'build', seed, difficulty, rng: new Rng(seed), eliteRng: new Rng(seed ^ 0x5bd1e995), fxRng: new Rng(seed + 7), gold: d.gold, lives: d.lives, maxLives: d.lives,
+      phase: 'build', seed, difficulty, rng: new Rng(seed), eliteRng: new Rng(seed ^ 0x5bd1e995), fxRng: new Rng(seed + 7), gold: d.gold + getMap(mapId).def.bonusGold, lives: d.lives, maxLives: d.lives,
       wave: 0, buildTimer: Infinity, towers: [], enemies: [], arrows: [], fireballs: [], meteors: [], skillCd: 0, fx: [], inventory: [],
       relics: new Set(), recipes: new Set(), seenRecipeCard: false, cards: [], rerolled: false,
       movesLeft: MOVES_PER_WAVE, time: 0, shake: 0, spawnQueue: [], combatT: 0,
-      stats: { kills: 0, merges: 0, goldEarned: 0, leaks: 0, startedAt: Date.now(), interest: 0, dmg: {}, leaked: {} },
+      stats: { kills: 0, merges: 0, goldEarned: 0, leaks: 0, startedAt: Date.now(), interest: 0, dmg: {}, leaked: {}, leakLane: getMap(mapId).lanes.map(() => 0), richWaves: 0, maxStartGold: 0 },
     });
   }
 
@@ -124,6 +124,9 @@ export class Game {
   // ---------- 波次 ----------
   startWave() {
     if (this.phase !== 'build') return;
+    // 复盘用：开波时手里压着大量金币（利息最多 30，超过 300 金就不再多给）
+    if (this.gold >= RICH_GOLD) this.stats.richWaves++;
+    this.stats.maxStartGold = Math.max(this.stats.maxStartGold, this.gold);
     if (this.diff.earlyBonus && isFinite(this.buildTimer) && this.buildTimer > 0) {
       const bonus = Math.floor(this.buildTimer) * EARLY_BONUS_PER_SEC;
       if (bonus > 0) { this.addGold(bonus); this.text(480, 300, `提前开波 +${bonus}`, '#F2C14E', 18); }
@@ -345,7 +348,7 @@ export class Game {
     const d = this.diff;
     const affix = allowAffix ? this.rollAffix(def.boss) : null;
     const eliteMul = affix && !def.boss ? ELITE_HP : 1;
-    const hp = Math.max(1, Math.round((def.boss ? def.hp * d.bossHp : def.hp * hpScale(this.wave, d)) * eliteMul * hpFrac * this.map.def.hpMul));
+    const hp = Math.max(1, Math.round((def.boss ? def.hp * d.bossHp : def.hp * hpScale(this.wave, d)) * eliteMul * hpFrac * this.map.def.hpMul[this.difficulty]));
     const p = def.flying ? this.map.flyPointAt(lane, dist) : this.map.pointAt(lane, dist);
     const e: Enemy = {
       id: this.nextId++, kind, def, hp, maxHp: hp, dist, lane, x: p.x, y: p.y, auraSlow: 0, timedSlow: 0, timedSlowT: 0,
@@ -365,6 +368,7 @@ export class Game {
     if (!this.alive(e)) return;
     const t = this.towers.find((x) => x.id === src);
     if (t && (t.type === 'sentry' || t.type === 'repeater') && (e.def.boss || e.affix)) amount *= HUNTER_BONUS;
+    if (t && e.def.flying && this.relics.has('skyward')) amount *= SKYWARD_BONUS;
     const sentryLike = t && (t.type === 'sentry' || t.type === 'repeater');
     const pen = t && (t.type === 'ballista' || t.type === 'icelance' || (sentryLike && this.relics.has('piercer'))) ? ARMOR_PIERCE : 0;
     let dmg = fire ? amount : amount * (1 - e.def.armor * (1 - pen));
@@ -512,6 +516,7 @@ export class Game {
         this.stats.leaks += e.def.leak;
         const rec = (this.stats.leaked[e.kind] ??= { count: 0, lives: 0, elite: 0 });
         rec.count++; rec.lives += e.def.leak; if (e.affix) rec.elite++;
+        this.stats.leakLane[e.lane] = (this.stats.leakLane[e.lane] ?? 0) + e.def.leak;
         this.shake = Math.max(this.shake, 0.25);
         this.fx.push({ kind: 'leak', x: e.x, y: e.y, t: 0, dur: 0.6, text: `-${e.def.leak}` });
         this.emit('leak', e);

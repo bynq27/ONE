@@ -48,6 +48,7 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 2px; }
 #popover .row { font-size: 13px; font-weight: 500; line-height: 1.5; }
 #popover .sub { font-size: 12px; color: var(--paper-sub); line-height: 1.5; }
 #popover .hint { font-size: 12px; font-weight: 700; color: #7A4A1E; background: #EAD8AE; border-radius: 6px; padding: 4px 8px; margin-top: 2px; }
+#popover .hint.counter { color: #2F5E1C; background: #DCE8C0; }
 #popover .actions { display: flex; gap: 8px; margin-top: 6px; }
 #popover .actions button { flex: 1; height: 36px; border-radius: 8px; font-weight: 900; font-size: 14px; }
 .sell { background: var(--red); color: #FFF4DC; border: 2px solid var(--gold-hi); }
@@ -179,6 +180,10 @@ button:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 2px; }
 .leak-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #C9A870; padding: 1px 0; }
 .leak-row b { color: #A3401A; }
 .end-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; width: 100%; align-items: start; }
+.review { width: 100%; text-align: left; background: #EAD8AE; border-radius: 8px; padding: 8px 12px; }
+.review ul { list-style: disc; margin: 4px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.55; color: #3A2A1E; }
+.review li + li { margin-top: 2px; }
+.review b { color: #A3401A; }
 
 .levels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; }
 .level { min-height: 70px; border-radius: 10px; border: 2px solid #B8862E; background: #FFF8E6; color: var(--paper-ink); display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 8px 12px; text-align: left; }

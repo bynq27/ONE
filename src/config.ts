@@ -64,7 +64,7 @@ export const TOWERS: Record<TowerType, TowerDef> = {
   sentry: { name: '守望哨塔', role: '单体', cost: 55, damage: 16, rate: 0.9, range: 3.0, air: true, desc: '可打飞行；对 Boss 和精英伤害 +50%' },
   brazier: { name: '烈焰火盆', role: '范围', cost: 80, damage: 10, rate: 0.6, range: 2.5, air: false, desc: '火球爆炸半径 0.85 格，火焰无视护甲' },
   frost: { name: '霜晶塔', role: '减速', cost: 50, damage: 2, rate: 0, range: 2.5, air: true, desc: '光环：射程内敌人减速 30%，附带少量持续伤害' },
-  ballista: { name: '弩车', role: '穿透', cost: 90, damage: 34, rate: 0.45, range: 4.0, air: false, desc: '直线穿透，最多命中 3 个敌人；破甲：无视 50% 护甲' },
+  ballista: { name: '弩车', role: '穿透', cost: 90, damage: 40, rate: 0.55, range: 4.0, air: false, desc: '直线穿透，最多命中 3 个敌人；破甲：无视 50% 护甲' },
   steam: { name: '蒸汽炉', role: '配方', cost: 0, damage: 26, rate: 0.6, range: 2.8, air: false, desc: '范围伤害，减速 20%，灼烧每秒 5 持续 2 秒' },
   repeater: { name: '连弩塔', role: '配方', cost: 0, damage: 32, rate: 0.9, range: 3.4, air: true, desc: '每次射 3 支箭，可打飞行；对 Boss 和精英伤害 +50%' },
   icelance: { name: '冰锥炮', role: '配方', cost: 0, damage: 80, rate: 0.5, range: 4.3, air: false, desc: '穿透最多 5 个敌人，破甲 50%；命中冻结 0.6 秒（同一敌人 2.5 秒冷却）' },
@@ -94,17 +94,18 @@ export interface EnemyDef {
   boss: boolean;
   radius: number; // 碰撞/命中半径 px
   desc: string;
+  tip: string; // 应对建议（点敌人时显示，结算复盘也会用）
 }
 
 export const ENEMIES: Record<EnemyKind, EnemyDef> = {
-  slime: { name: '史莱姆', hp: 40, speed: 1.0, armor: 0, bounty: 4, leak: 1, flying: false, boss: false, radius: 11, desc: '普通敌人' },
-  wolf: { name: '狼', hp: 28, speed: 1.8, armor: 0, bounty: 5, leak: 1, flying: false, boss: false, radius: 11, desc: '跑得很快，成群出现' },
-  golem: { name: '石魔像', hp: 180, speed: 0.6, armor: 0.3, bounty: 12, leak: 2, flying: false, boss: false, radius: 14, desc: '护甲 30%，火焰无视护甲' },
-  shaman: { name: '萨满', hp: 70, speed: 0.9, armor: 0, bounty: 10, leak: 1, flying: false, boss: false, radius: 12, desc: '每隔几秒停下举起法杖，0.8 秒后为 1.6 格内的同伴回复 15% 最大生命（Boss 为 3%）；举杖时打死或冻住它可以打断' },
-  bat: { name: '蝙蝠', hp: 35, speed: 1.3, armor: 0, bounty: 6, leak: 1, flying: true, boss: false, radius: 11, desc: '飞行，直线飞向城门' },
-  slimeKing: { name: '史莱姆王', hp: 900, speed: 0.7, armor: 0, bounty: 60, leak: 5, flying: false, boss: true, radius: 22, desc: '死亡时分裂成 4 只史莱姆' },
-  wolfKing: { name: '狼王', hp: 1800, speed: 1.4, armor: 0, bounty: 90, leak: 6, flying: false, boss: true, radius: 20, desc: '每 8 秒冲刺 2 秒：速度 ×2，免疫减速' },
-  colossus: { name: '石巨像', hp: 5000, speed: 0.5, armor: 0.4, bounty: 150, leak: 20, flying: false, boss: true, radius: 26, desc: '护甲 40%；每 10 秒震地，2 格内的塔停火 2 秒' },
+  slime: { name: '史莱姆', hp: 40, speed: 1.0, armor: 0, bounty: 4, leak: 1, flying: false, boss: false, radius: 11, desc: '普通敌人', tip: '什么塔都能打；成群出现时烈焰火盆、蒸汽炉的范围伤害最划算' },
+  wolf: { name: '狼', hp: 28, speed: 1.8, armor: 0, bounty: 5, leak: 1, flying: false, boss: false, radius: 11, desc: '跑得很快，成群出现', tip: '跑得快：霜晶塔减速后，用火盆、蒸汽炉的范围伤害一起收掉' },
+  golem: { name: '石魔像', hp: 180, speed: 0.6, armor: 0.3, bounty: 12, leak: 2, flying: false, boss: false, radius: 14, desc: '护甲 30%，火焰无视护甲', tip: '护甲 30%：火焰（火盆、蒸汽炉）无视护甲，弩车、冰锥炮能破一半甲' },
+  shaman: { name: '萨满', hp: 70, speed: 0.9, armor: 0, bounty: 10, leak: 1, flying: false, boss: false, radius: 12, desc: '每隔几秒停下举起法杖，0.8 秒后为 1.6 格内的同伴回复 15% 最大生命（Boss 为 3%）；举杖时打死或冻住它可以打断', tip: '优先集火；它站着举杖时是活靶子，冰锥炮的冻结也能打断它' },
+  bat: { name: '蝙蝠', hp: 35, speed: 1.3, armor: 0, bounty: 6, leak: 1, flying: true, boss: false, radius: 11, desc: '飞行，直线飞向城门', tip: '只有哨塔、霜晶塔、连弩塔能打到；遗物「猎空号角」对它伤害 +40%' },
+  slimeKing: { name: '史莱姆王', hp: 900, speed: 0.7, armor: 0, bounty: 60, leak: 5, flying: false, boss: true, radius: 22, desc: '死亡时分裂成 4 只史莱姆', tip: '死后分裂成 4 只史莱姆：Boss 附近留一座范围塔收尾' },
+  wolfKing: { name: '狼王', hp: 1800, speed: 1.4, armor: 0, bounty: 90, leak: 6, flying: false, boss: true, radius: 20, desc: '每 8 秒冲刺 2 秒：速度 ×2，免疫减速', tip: '冲刺时免疫减速：要靠高单体伤害，哨塔、连弩塔对 Boss 伤害 +50%' },
+  colossus: { name: '石巨像', hp: 5000, speed: 0.5, armor: 0.4, bounty: 150, leak: 20, flying: false, boss: true, radius: 26, desc: '护甲 40%；每 10 秒震地，2 格内的塔停火 2 秒', tip: '震地会让 2 格内的塔停火：塔别全堆在一处；火焰无视它的护甲' },
 };
 
 // lane：走哪条路（0 起；'alt' = 两路轮流）；with：与上一组同时出发
@@ -131,7 +132,7 @@ export const WAVES: SpawnGroup[][] = [
   [g('golem', 3, 1.4), g('colossus', 1, 1, 1), g('golem', 3, 1.4, 1), g('bat', 8, 0.8, 1)],
 ];
 
-export type RelicId = 'lava' | 'permafrost' | 'eagle' | 'caravan' | 'gate' | 'hammer' | 'piercer';
+export type RelicId = 'lava' | 'permafrost' | 'eagle' | 'caravan' | 'gate' | 'hammer' | 'piercer' | 'skyward';
 export interface RelicDef { name: string; desc: string }
 export const RELICS: Record<RelicId, RelicDef> = {
   lava: { name: '熔岩之心', desc: '火焰伤害 +20%' },
@@ -141,7 +142,11 @@ export const RELICS: Record<RelicId, RelicDef> = {
   gate: { name: '加固城门', desc: '生命上限 +3，并立即回复 3 点' },
   hammer: { name: '工匠之锤', desc: '每次合成返还 20 金' },
   piercer: { name: '破甲箭头', desc: '哨塔、连弩塔也能无视 50% 护甲' },
+  skyward: { name: '猎空号角', desc: '对飞行敌人伤害 +40%' },
 };
+
+export const SKYWARD_BONUS = 1.4;
+export const RICH_GOLD = 400; // 结算复盘：开波时金币 ≥ 这个数算「钱压着没花」
 
 export const CARD_WEIGHTS = { tower: 60, recipe: 20, relic: 20 };
 export const TOWER_CARD_STAR2_CHANCE = 0.15;

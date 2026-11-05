@@ -1,4 +1,4 @@
-import { AFFIXES, ENEMIES as ENEMY_DEFS, SKILL, BASIC_TOWERS, DIFFICULTIES, DIFFICULTY_ORDER, Difficulty, ENEMIES, RECIPES, RELICS, REROLL_COST, TOWERS, TowerType } from './config';
+import { AFFIXES, ENEMIES as ENEMY_DEFS, SKILL, BASIC_TOWERS, DIFFICULTIES, DIFFICULTY_ORDER, Difficulty, ENEMIES, RECIPES, RELICS, REROLL_COST, RICH_GOLD, INTEREST_CAP, TOWERS, TowerType } from './config';
 import { MAPS, MAP_ORDER, MapId } from './map';
 import { Card, Game, isSpecial, towerStats } from './game';
 import { towerIconUrl } from './sprites';
@@ -203,6 +203,7 @@ export class UI {
       <div class="row">生命 ${Math.ceil(e.hp)} / ${e.maxHp}</div>
       <div class="row">速度 ${d.speed} 格/秒${d.armor ? ` · 护甲 ${Math.round(d.armor * 100)}%` : ''}</div>
       <div class="sub">${d.desc}</div>${af ? `<div class="hint">词缀「${af.name}」：${af.desc}</div>` : ''}
+      <div class="hint counter">应对：${d.tip}</div>
       <div class="actions"><button class="close" data-close="1">关闭</button></div>`;
     this.place(e.x, e.y, html);
     return true;
@@ -246,6 +247,35 @@ export class UI {
       ? rows.map(([k, r]) => `<div class="leak-row"><span>${ENEMY_DEFS[k as keyof typeof ENEMY_DEFS].name} × ${r.count}${r.elite ? `（精英 ${r.elite}）` : ''}</span><b>−${r.lives} 生命</b></div>`).join('')
       : '<div class="none">一只都没漏</div>';
     return `<div class="leak-table"><div class="dmg-title">漏怪</div>${body}</div>`;
+  }
+
+  // 结算复盘：根据这局的数据挑最多 3 条建议
+  private reviewHtml(g: Game, won: boolean) {
+    const tips: string[] = [];
+    const S = g.stats, total = S.leaks;
+    const leaked = Object.entries(S.leaked) as [keyof typeof ENEMY_DEFS, { count: number; lives: number; elite: number }][];
+    if (won && total === 0) tips.push(g.difficulty === 'nightmare' ? '噩梦难度一只没漏，完美防守！' : '一只没漏，完美防守！可以试试更高的难度');
+    // 某一路漏得特别多
+    if (g.map.lanes.length > 1 && total >= 3) {
+      const i = S.leakLane.indexOf(Math.max(...S.leakLane));
+      if (S.leakLane[i] >= total * 0.7) tips.push(`漏怪主要来自<b>${g.map.def.laneNames[i]}</b>（−${S.leakLane[i]} 生命）：${g.map.def.laneNames[i]}入口附近再多放几座塔`);
+    }
+    // 蝙蝠
+    const bat = S.leaked.bat;
+    if (bat && bat.lives >= Math.max(3, total * 0.3)) tips.push(`蝙蝠漏了 ${bat.count} 只：多造能对空的塔（哨塔、霜晶塔、连弩塔），或者选遗物「猎空号角」`);
+    // 漏得最多的地面敌人
+    const ground = leaked.filter(([k]) => k !== 'bat').sort((a, b) => b[1].lives - a[1].lives)[0];
+    if (ground && ground[1].lives >= Math.max(2, total * 0.3)) tips.push(`<b>${ENEMY_DEFS[ground[0]].name}</b>漏得最多（−${ground[1].lives} 生命）：${ENEMY_DEFS[ground[0]].tip}`);
+    // 钱压着没花
+    if (S.richWaves >= 3) tips.push(`有 ${S.richWaves} 波开波时手里压着 ${RICH_GOLD}+ 金币（最多 ${S.maxStartGold}）：利息最多只给 ${INTEREST_CAP}，多出来的钱早点变成塔`);
+    // 伤害过于依赖一种塔
+    const dmg = Object.entries(S.dmg).filter(([, v]) => v > 0);
+    const sum = dmg.reduce((s, [, v]) => s + v, 0);
+    const top = dmg.sort((a, b) => b[1] - a[1])[0];
+    if (!won && top && top[0] !== 'skill' && top[1] / sum > 0.45) tips.push(`伤害有 ${Math.round(100 * top[1] / sum)}% 来自${TOWERS[top[0] as TowerType].name}：太依赖一种塔，遇到克制它的敌人容易崩，搭配几种塔更稳`);
+    if (!won && !tips.length) tips.push('试试把塔集中在道路拐角（一座塔能打到两段路），并尽早合成升星');
+    if (!tips.length) return '';
+    return `<div class="review"><div class="dmg-title">复盘</div><ul>${tips.slice(0, 3).map((t) => `<li>${t}</li>`).join('')}</ul></div>`;
   }
 
   private perkChipsHtml(g: Game) {
@@ -305,6 +335,7 @@ export class UI {
         <div><span>种子</span><b>${g.seed}</b></div>
       </div>
       <div class="end-cols">${this.dmgHtml(g) || '<div></div>'}${this.leakHtml(g)}</div>
+      ${this.reviewHtml(g, won)}
       ${this.perkChipsHtml(g)}
       <div class="btns">${newly ? `<button class="primary" data-act="next">进入第 ${MAPS[newly].stage} 关「${MAPS[newly].name}」</button>` : ''}<button class="${newly ? 'ghost' : 'primary'}" data-act="again">再来一局</button><button class="ghost" data-act="same">同种子重玩</button><button class="ghost" data-act="quit">换关卡 / 难度</button></div>
     </div>`;

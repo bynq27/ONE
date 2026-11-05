@@ -1,5 +1,5 @@
 // 关卡地图：道路（可多条）、障碍、可建格、每关的波次。
-import { COLS, ROWS, SpawnGroup, TILE, WAVES } from './config';
+import { COLS, Difficulty, ROWS, SpawnGroup, TILE, WAVES } from './config';
 
 export interface Pt { x: number; y: number }
 export type MapId = 'valley' | 'river';
@@ -18,7 +18,8 @@ export interface MapDef {
   water: [number, number][];
   waterSvg: string; // 地面图里的水面装饰（SVG 片段）
   waves: SpawnGroup[][];
-  hpMul: number; // 本关敌人额外生命倍率（Boss 也算）
+  hpMul: Record<Difficulty, number>; // 本关敌人额外生命倍率（Boss 也算），按难度分开调
+  bonusGold: number; // 本关额外开局金币（两路地图要多建塔）
 }
 
 const OUT = '#2B1E16';
@@ -42,7 +43,8 @@ const VALLEY: MapDef = {
 <path d="M856 214 C866 204 900 200 922 208" stroke="#9FD4F2" stroke-width="2.5" fill="none" stroke-linecap="round"/>
 <path d="M872 240 q10 -4 20 0 M902 232 q8 -3 16 0" stroke="#CFEAFA" stroke-width="2" fill="none" stroke-linecap="round"/>`,
   waves: WAVES,
-  hpMul: 1,
+  hpMul: { easy: 1, hard: 1, nightmare: 1 },
+  bonusGold: 0,
 };
 
 // ---------- 第二关：双径河谷 ----------
@@ -87,7 +89,8 @@ const RIVER: MapDef = {
     [g('golem', 8, 'alt', 1.1), g('slime', 15, 'alt', 0.5, W), g('shaman', 3, 1, 1.5), g('bat', 6, 0, 0.8, W)],
     [g('golem', 6, 1, 1.4), g('shaman', 3, 1, 1.8, W), g('colossus', 1, 0, 1, { with: true, delay: 2 }), g('bat', 8, 'alt', 0.8)],
   ],
-  hpMul: 1.2,
+  hpMul: { easy: 1.2, hard: 1.15, nightmare: 1.05 },
+  bonusGold: 40,
 };
 
 export const MAPS: Record<MapId, MapDef> = { valley: VALLEY, river: RIVER };

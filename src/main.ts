@@ -109,6 +109,8 @@ game.listener = (e: GameEvent, data?: unknown) => {
       const c = data as Card;
       if (c.kind === 'tower') tipOnce('inv', '新塔放进了备用栏：把它拖到草地上，或拖到同类同星的塔上直接合成');
       if (c.kind === 'recipe') ui.showTip(`配方「${TOWERS[c.id].name}」已解锁：把两座指定的 ★★ 塔拖到一起即可合成`, 5000);
+      // 下一波有蝙蝠：提醒防空（选配方时先让配方提示显示完）
+      setTimeout(batWarning, c.kind === 'recipe' ? 5200 : 300);
       if (game.nextWave === 2) tipOnce('merge', '把两座同类、同星级的塔拖到一起，就能合成升星：伤害 ×2.2，还空出一格', 7000);
       break;
     }
@@ -116,6 +118,16 @@ game.listener = (e: GameEvent, data?: unknown) => {
     case 'lost': audio.play('lose'); finish(false); break;
   }
 };
+
+function batWarning() {
+  if (game.phase !== 'build') return;
+  const pv = game.wavePreview();
+  if (!pv?.bats) return;
+  const air = game.towers.filter((t) => TOWERS[t.type].air).length;
+  const lanes = game.laneForecast().map((row, i) => [game.map.def.laneNames[i], row.find((x) => x.kind === 'bat')?.count ?? 0] as const).filter(([, n]) => n > 0);
+  const where = game.map.lanes.length > 1 ? `（${lanes.map(([n, k]) => `${n} ${k}`).join('、')}）` : '';
+  ui.showTip(`下一波有 ${pv.bats} 只蝙蝠${where}：只有哨塔、霜晶塔、连弩塔能打到，你现在有 ${air} 座${air < Math.ceil(pv.bats / 3) ? '——不太够，多造几座！' : ''}`, 5500);
+}
 
 function finish(won: boolean) {
   const d = game.difficulty, m = game.map.def.id;
