@@ -1,0 +1,202 @@
+<title>雨夜酒楼</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Zhi+Mang+Xing&family=Noto+Serif+SC:wght@400;700&display=swap">
+<style>
+/* 布局：上方 16:9 灯影幕布，下方台木对话区；整体单一深色戏台风格，不随系统主题切换 */
+:root {
+  color-scheme: dark;
+  --wood: #22140f;
+  --wood-2: #2e1c14;
+  --wood-line: #6b3a22;
+  --paper: #f3dfb2;
+  --gold: #f3d38e;
+  --red: #8c2b1f;
+  --red-2: #b3261e;
+  --sys: #9cc3b0;
+  --display: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', serif;
+  --body: 'Noto Serif SC', 'Songti SC', 'SimSun', serif;
+}
+[hidden] { display: none !important; }
+html, body { min-height: 100%; }
+body {
+  margin: 0; background: #120b08; color: var(--paper);
+  font-family: var(--body); font-size: 17px; line-height: 1.75;
+  padding-left: max(12px, env(safe-area-inset-left, 0px));
+  padding-right: max(12px, env(safe-area-inset-right, 0px));
+  padding-block: 12px 24px;
+}
+#app { max-width: 980px; margin: 0 auto; display: grid; gap: 0; }
+button { font: inherit; cursor: pointer; }
+button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+#stagewrap { position: relative; width: 100%; aspect-ratio: 16 / 9; max-width: 100%; background: var(--wood); overflow: hidden; user-select: none; -webkit-user-select: none; }
+#stage { display: block; width: 100%; height: 100%; }
+#stagewrap.shake { animation: shake .35s; }
+@keyframes shake { 20% { transform: translate(-6px, 2px); } 40% { transform: translate(5px, -3px); } 60% { transform: translate(-4px, 2px); } 80% { transform: translate(3px, -1px); } }
+#ink, #pozhan, #rain, #dim, .pp-reveal, .pp-fanhand, .pp-fandrop, .pp-cloak { transition: opacity .7s ease; }
+#dim { transition: opacity .5s ease; }
+#pozhan.pop text { animation: pop .5s cubic-bezier(.2, 1.6, .4, 1); transform-box: fill-box; transform-origin: center; }
+@keyframes pop { from { opacity: 0; transform: scale(1.8) rotate(-8deg); } to { opacity: 1; transform: scale(1) rotate(-8deg); } }
+
+#hud { position: absolute; top: 8px; right: 8px; left: 8px; display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none; gap: 8px; }
+#hud > * { pointer-events: auto; }
+.hbtns { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; margin-left: auto; }
+.hbtns button { background: rgba(34, 20, 15, .88); color: var(--gold); border: 1px solid var(--wood-line); padding: 2px 10px; font-size: 13px; font-family: var(--body); }
+.hbtns button:hover { border-color: var(--gold); }
+#lq { display: flex; gap: 4px; padding: 4px 8px; background: rgba(34, 20, 15, .85); border: 1px solid var(--wood-line); }
+#lq i { width: 6px; height: 26px; background: var(--red-2); border: 1px solid var(--gold); display: block; transition: opacity .4s, transform .4s; }
+#lq i.gone { opacity: .15; transform: translateY(6px); }
+
+#spots { position: absolute; inset: 0; pointer-events: none; }
+.spot { position: absolute; transform: translate(-50%, -50%); pointer-events: auto; background: rgba(34, 20, 15, .9); color: var(--gold); border: 1.5px solid var(--gold); padding: 2px 10px; font-size: 14px; white-space: nowrap; animation: glow 2s infinite; }
+.spot.loc { background: var(--red); }
+.spot.done { opacity: .55; animation: none; border-style: dashed; }
+.spot.done::after { content: ' ✓'; }
+.spot:hover { background: var(--gold); color: var(--wood); }
+@keyframes glow { 50% { box-shadow: 0 0 0 4px rgba(243, 211, 142, .25); } }
+
+#card { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(18, 11, 8, .55); cursor: pointer; }
+.card-in { display: flex; gap: 16px; align-items: center; background: var(--paper); color: #2a1810; border: 3px solid var(--wood-line); padding: 14px 18px; width: min(86%, 520px); box-shadow: 0 8px 30px rgba(0,0,0,.5); }
+.card-icon { flex: 0 0 auto; width: 76px; height: 76px; background: #eeb466; border: 2px solid #2a1810; display: grid; place-items: center; }
+.card-icon svg { width: 62px; height: 62px; }
+.card-body { min-width: 0; }
+.card-tag { font-size: 12px; color: var(--red); letter-spacing: .2em; }
+.card-name { font-family: var(--display); font-size: 26px; line-height: 1.2; }
+.card-body p { margin: 4px 0 0; font-size: 15px; line-height: 1.6; }
+.card-hint { font-size: 12px; color: #7a5a3a; margin-top: 6px; }
+
+#tcard { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; background: rgba(12, 7, 5, .78); }
+.tc-main { font-family: var(--display); font-size: clamp(26px, 6vw, 52px); color: var(--gold); line-height: 1.2; }
+.tc-sub { font-family: var(--display); font-size: clamp(18px, 3.6vw, 30px); color: var(--paper); margin-top: 4px; }
+
+#titlescreen, #over, #end { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; gap: 14px; background: rgba(12, 7, 5, .5); }
+.tt { font-family: var(--display); font-size: clamp(48px, 12vw, 104px); line-height: 1; color: var(--paper); text-shadow: 0 3px 0 #2a1810; }
+.ts { font-size: 14px; letter-spacing: .3em; color: var(--gold); }
+.tbtns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.big { background: var(--red); color: var(--gold); border: 1.5px solid var(--gold); padding: 6px 26px; font-family: var(--display); font-size: 22px; }
+.big.alt { background: rgba(34, 20, 15, .9); }
+.big:hover { background: var(--red-2); }
+
+#panel { position: relative; background: linear-gradient(var(--wood-2), var(--wood)); border: 3px solid var(--wood-line); border-top: none; min-height: 168px; padding: 22px 20px 18px; cursor: pointer; }
+#name { position: absolute; top: -18px; left: 16px; background: var(--red); color: var(--gold); font-family: var(--display); font-size: 21px; padding: 0 14px; border: 1.5px solid var(--gold); line-height: 1.5; }
+#text { margin: 0; min-height: 3.5em; white-space: pre-wrap; }
+#text.narr { color: #cdb990; font-style: italic; }
+#text.sys { color: var(--sys); font-size: 15px; }
+#text.sys::before { content: '〔提示〕'; color: var(--sys); opacity: .8; }
+#text.testi { color: #fff2cf; font-size: 18px; }
+#next { position: absolute; right: 18px; bottom: 10px; color: var(--gold); font-size: 14px; animation: bob 1s infinite; }
+@keyframes bob { 50% { transform: translateY(3px); } }
+
+#choices { display: grid; gap: 8px; margin-top: 4px; }
+#choices button { text-align: left; background: rgba(243, 211, 142, .08); color: var(--paper); border: 1px solid var(--wood-line); padding: 6px 14px; }
+#choices button:hover { border-color: var(--gold); background: rgba(243, 211, 142, .16); }
+#choices button.go { text-align: center; background: var(--red); color: var(--gold); border-color: var(--gold); font-family: var(--display); font-size: 20px; justify-self: end; padding: 2px 22px; }
+#choices.doc { background: #efe3c4; color: #2a1810; padding: 12px 14px 14px; border: 2px solid var(--wood-line); }
+#choices.doc .doc-title { font-family: var(--display); font-size: 20px; }
+#choices.doc button { color: #2a1810; background: transparent; border: none; border-bottom: 1px dashed #b39466; padding: 4px 4px; }
+#choices.doc button:hover { background: rgba(179, 38, 30, .12); color: var(--red); }
+
+#testimony { margin-bottom: 6px; display: grid; gap: 4px; }
+.t-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.t-title { font-size: 13px; color: var(--sys); letter-spacing: .15em; }
+.t-dots { display: flex; gap: 6px; }
+.t-dots i { width: 10px; height: 10px; border: 1px solid var(--gold); display: block; }
+.t-dots i.on { background: var(--gold); }
+.t-dots i.new { border-color: var(--red-2); box-shadow: 0 0 0 2px rgba(179, 38, 30, .5); }
+.t-ctrl { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.t-ctrl button { background: rgba(243, 211, 142, .08); color: var(--paper); border: 1px solid var(--wood-line); padding: 4px 14px; }
+.t-ctrl button:hover { border-color: var(--gold); }
+.t-ctrl .press { background: #3a4a42; color: #e6f2ea; border-color: var(--sys); }
+.t-ctrl .present { background: var(--red); color: var(--gold); border-color: var(--gold); margin-left: auto; }
+#panel.trial-on { cursor: default; }
+
+#drawer { position: fixed; inset: 0; background: rgba(8, 5, 3, .78); display: grid; place-items: center; padding: 16px; z-index: 20; }
+.dr-box { background: var(--wood); border: 3px solid var(--wood-line); width: min(100%, 760px); max-height: 90vh; overflow: auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; padding: 16px; }
+.dr-head { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; }
+.dr-title { font-family: var(--display); font-size: 26px; color: var(--gold); }
+.dr-close { background: transparent; color: var(--paper); border: 1px solid var(--wood-line); padding: 2px 12px; }
+.dr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; align-content: start; }
+.dr-item { background: #eeb466; border: 2px solid #2a1810; padding: 6px 4px; display: grid; justify-items: center; gap: 2px; color: #2a1810; font-size: 12px; line-height: 1.3; }
+.dr-item svg { width: 44px; height: 44px; }
+.dr-item.sel { outline: 3px solid var(--gold); outline-offset: 1px; background: #fbe3a8; }
+.dr-detail { background: var(--paper); color: #2a1810; padding: 12px 14px; align-self: start; display: grid; gap: 8px; }
+.dr-detail p { margin: 0; font-size: 15px; line-height: 1.7; }
+.dr-name { font-family: var(--display); font-size: 24px; }
+.dr-detail .go { background: var(--red); color: var(--gold); border: 1.5px solid var(--gold); padding: 4px 16px; font-family: var(--display); font-size: 19px; justify-self: start; }
+.foot { color: #8a735a; font-size: 12px; text-align: center; margin-top: 10px; }
+
+@media (max-width: 560px) {
+  body { font-size: 16px; }
+  #panel { padding: 20px 14px 16px; min-height: 180px; }
+  .card-in { gap: 10px; padding: 10px; }
+  .card-icon { width: 52px; height: 52px; } .card-icon svg { width: 42px; height: 42px; }
+  .card-name { font-size: 20px; } .card-body p { font-size: 13px; }
+  .spot { font-size: 12px; padding: 1px 6px; }
+  .dr-box { grid-template-columns: 1fr; }
+  .hbtns button { font-size: 12px; padding: 1px 7px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spot, #next { animation: none; }
+  #pozhan.pop text { animation: none; }
+}
+</style>
+
+<div id="app">
+  <div id="stagewrap">
+    <svg id="stage" viewBox="0 0 640 360" role="img" aria-label="灯影戏台"></svg>
+    <div id="spots"></div>
+    <div id="card" hidden></div>
+    <div id="tcard" hidden></div>
+    <div id="hud">
+      <div id="lq" hidden aria-label="令签"></div>
+      <div class="hbtns">
+        <button id="b-hint" type="button" hidden>问老樊</button>
+        <button id="b-file" type="button">卷宗</button>
+        <button id="b-snd" type="button">声音：开</button>
+      </div>
+    </div>
+    <div id="titlescreen">
+      <div class="ts">第一章 · 试玩版</div>
+      <div class="tt">雨夜酒楼</div>
+      <div class="tbtns">
+        <button id="btn-start" class="big" type="button">开始</button>
+        <button id="btn-continue" class="big alt" type="button" hidden>继续</button>
+      </div>
+    </div>
+    <div id="over" hidden>
+      <div class="tt" style="font-size:clamp(34px,8vw,64px)">案子判错了</div>
+      <div class="tbtns"><button id="btn-retry" class="big" type="button">重来本轮</button></div>
+    </div>
+    <div id="end" hidden>
+      <div class="ts">感谢试玩</div>
+      <div class="tt" style="font-size:clamp(34px,8vw,64px)">第一章　完</div>
+      <div class="tbtns"><button id="btn-again" class="big" type="button">重新开始</button></div>
+    </div>
+  </div>
+  <div id="panel">
+    <div id="name" hidden></div>
+    <div id="testimony" hidden>
+      <div class="t-head"><span class="t-title"></span><span class="t-dots"></span></div>
+    </div>
+    <div id="text"></div>
+    <div id="choices" hidden></div>
+    <div id="tctrl" class="t-ctrl" hidden><button id="t-prev" type="button">◀ 上一句</button><button id="t-next" type="button">下一句 ▶</button><button id="t-press" class="press" type="button">追问</button><button id="t-present" class="present" type="button">出示证物</button></div>
+    <div id="next" hidden>▼</div>
+  </div>
+  <div class="foot">点击对话框或按空格继续 · 公堂上可用左右方向键切换证词</div>
+</div>
+
+<div id="drawer" hidden>
+  <div class="dr-box" role="dialog" aria-label="卷宗">
+    <div class="dr-head"><span class="dr-title">卷宗</span><button class="dr-close" type="button">合上</button></div>
+    <div class="dr-grid"></div>
+    <div class="dr-detail"></div>
+  </div>
+</div>
+
+<script src="js/puppets.js"></script>
+<script src="js/scenes.js"></script>
+<script src="js/story.js"></script>
+<script src="js/engine.js"></script>

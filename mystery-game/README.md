@@ -9,7 +9,7 @@
 - [x] 画风：皮影为主，水墨用于逆转时刻
 - [x] 第一章四个主要角色设定
 - [x] 第一章《雨夜酒楼》剧本初稿（`docs/chapter1-script.md`）
-- [ ] 第一章网页试玩版
+- [x] 第一章网页试玩版（`game/`），在线版 https://claude.ai/artifact/FLsUaH9tS3dYWUURQh7z92
 
 ## 文件
 - `docs/design-notes.md`：目前定下来的所有设计决定
